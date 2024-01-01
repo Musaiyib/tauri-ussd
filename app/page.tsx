@@ -3,6 +3,8 @@ import { Input } from "@nextui-org/react";
 import { ChangeEvent, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useHotkeys } from "react-hotkeys-hook";
+// When using the Tauri API npm package:
+import { invoke } from "@tauri-apps/api/tauri";
 
 export default function Home() {
   const [phone, setPhone] = useState<string>("");
@@ -23,10 +25,18 @@ export default function Home() {
       toast.error("Phone and Limit are required");
       return;
     }
+
+    if (phone.length > 11 || phone.length < 11) {
+      toast.error("Phone number length exceeds/less than maximum number (11)");
+      return;
+    }
     toast.success("Form submitted!");
     console.log({ phone, limit });
-    setPhone("");
-    setLimit("");
+    setPhone(phone);
+    setLimit(limit);
+    invoke("send", { number: Number(phone), limit: Number(limit) }).then(
+      (message) => console.log(message)
+    );
   };
   let isEnabled = false;
 
